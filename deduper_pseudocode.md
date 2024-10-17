@@ -2,6 +2,7 @@ Write up a strategy for writing a Reference Based PCR Duplicate Removal tool
 i.e. given a sorted sam file of uniquely mapped reads, remove all PCR duplicates (retain only a single copy of each read)
 
 **Defining the problem**
+--
 If a library is amplified prior to sequencing, we could be introducing PCR duplicates to the system. For DNA/WGS applications, duplicates aren't an issue - you just need aligments that map to the reference genome. 
 
 However, for RNA/WES/WTS applications, duplicates hinder relative abundance measurements (i.e. are there more copies of a gene sequence due to that gene being actually transcribed more or is it because that sequences had bias in PCR due to GC/AT richness, difference in Tms, secondary structures etc)
@@ -17,9 +18,13 @@ PCR Duplicate criteria (all must be TRUE):
     NOTE: take into account minus strand and CIGAR string (softclipping!!)
 
 **write examples**
+--
+[Input Test](https://github.com/shayprat/Deduper-shayprat/blob/master/test_input.sam)
+[Output Test](https://github.com/shayprat/Deduper-shayprat/blob/master/test_output.sam)
 
 
 **Pseudocode**
+--
 
 ```
 Split SAM by chromosome and split by UMI (or use samtoools to sort by chromosome) outside of .py script
@@ -68,7 +73,7 @@ open input SAM file for reading, and output SAM file for writing
         strand = get_orientation(line)
         position = get_corrected_position(line)
 
-        if strandedness = minus, generate rev_comp of umi (not sure if this is needed)
+        if stranded = minus, generate rev_comp of umi (not sure if this is needed)
             new_umi = bioinfo.rev_comp(new_umi)
 
         else (it's a positive strand)
@@ -94,8 +99,9 @@ open input SAM file for reading, and output SAM file for writing
     
 
 **High-level functions**
+--
 
-1. Strandedness
+**1. Strandedness**
 ```
 def get_orientation(line: str) ->: str
     ```determines whether a sequences is on the plus or minus strand depending on BITWISE FLAG```
@@ -113,7 +119,7 @@ return strand
 **Input** = NS500451:154:HWKTMBGXX:1:11101:24260:1121:CTGTTCAC	16	2	76814284	36	71M	*	0	0	TCCACCACAATCTTACCATCCTTCCTCCAGACCACATCGCGTTCTTTGTTCAACTCACAGCTCAAGTACAA	6AEEEEEEAEEAEEEEAAEEEEEEEEEAEEAEEAAEE<EEEEEEEEEAEEEEEEEAAEEAAAEAEEAEAE/	MD:Z:71	NH:i:1	HI:i:1	NM:i:0	SM:i:36	XQ:i:40	X2:i:0	XO:Z:UU
 **Output** = minus
             
-2. Corrected Position
+**2. Corrected Position**
 ```
 def get_corrected_position(line: str) ->: int
     ```determines left-most start postion taking softclipping into account```
